@@ -4,5 +4,6 @@
     <string name="app_name">UPC Streaming Service</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="buit">No hi ha videos disponibles o no s\'ha pogut conectar amb el servidor</string>
 
 </resources>
