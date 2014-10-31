@@ -24,6 +24,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="pbe.upcstreamingservice.MainActivity" />
         </activity>
+        <activity
+            android:name="pbe.upcstreamingservice.ChatActivity"
+            android:label="@string/title_activity_chat"
+            android:parentActivityName="pbe.upcstreamingservice.Multimedia" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pbe.upcstreamingservice.Multimedia" />
+        </activity>
     </application>
 
 </manifest>

@@ -7,5 +7,6 @@
     <string name="buit">No hi ha videos disponibles o no es pogut conectar amb el servidor</string>
     <string name="title_activity_multimedia">Multimedia</string>
     <string name="btnSync">Try to Syncronize</string>
+    <string name="title_activity_chat">ChatActivity</string>
 
 </resources>
