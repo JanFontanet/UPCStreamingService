@@ -48,8 +48,13 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
 
     }
 
+    /**
+     * Ens descarragarem el video i la descripció que hi hagi i ho colocarem on calgui..
+     *
+     * @param urlVideo
+     */
     private void downloadVideo(String urlVideo) {
-        //ho haurem de fer...
+
     }
 
 
