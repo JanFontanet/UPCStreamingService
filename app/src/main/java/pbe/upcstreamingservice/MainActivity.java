@@ -1,5 +1,6 @@
 package pbe.upcstreamingservice;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -11,6 +12,8 @@ import android.widget.ListView;
 
 
 public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+
+    public static String VIDEO = "video";
 
     private ListView mListView;
     private Button mSyncButton;
@@ -66,8 +69,9 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        /**
-         *  Go to the videoActivity
-         */
+        Intent i = new Intent(MainActivity.this, Multimedia.class);
+        i.putExtra(VIDEO, (String)mListView.getItemAtPosition(position));
+
+        startActivity(i);
     }
 }

@@ -1,29 +1,55 @@
 package pbe.upcstreamingservice;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 
-public class Multimedia extends ActionBarActivity implements MediaController.MediaPlayerControl{
+public class Multimedia extends ActionBarActivity implements MediaController.MediaPlayerControl, View.OnClickListener{
 
     private VideoView mVideoView;
     private MediaController mMediaController;
     private TextView mMediaDescription;
+
+    private Button mBtnEnrrera;
+    private Button mBtnPlayPause;
+    private Button mBtnEndeban;
+    private Button mBtnFullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multimedia);
 
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+
+        if (extras.isEmpty())
+            return;
+        String urlVideo = extras.getString(MainActivity.VIDEO);
+
+        downloadVideo(urlVideo);
+
         mVideoView = (VideoView)findViewById(R.id.video);
         mMediaController = (MediaController)findViewById(R.id.mediaController);
         mMediaDescription = (TextView)findViewById(R.id.mediaInfo);
 
+        mBtnEndeban = (Button)mMediaController.findViewById(R.id.endeban);
+        mBtnEnrrera = (Button)mMediaController.findViewById(R.id.enrrera);
+        mBtnPlayPause = (Button)mMediaController.findViewById(R.id.play_pause);
+        mBtnFullScreen = (Button)mMediaController.findViewById(R.id.fullScreen);
+
+    }
+
+    private void downloadVideo(String urlVideo) {
+        //ho haurem de fer...
     }
 
 
@@ -36,67 +62,58 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void start() {
-
+        mVideoView.start();
     }
 
     @Override
     public void pause() {
-
+        mVideoView.pause();
     }
 
     @Override
     public int getDuration() {
-        return 0;
+        return mVideoView.getDuration();
     }
 
     @Override
     public int getCurrentPosition() {
-        return 0;
+        return mVideoView.getCurrentPosition();
     }
 
     @Override
     public void seekTo(int pos) {
-
+        mVideoView.seekTo(pos);
     }
 
     @Override
     public boolean isPlaying() {
-        return false;
+        return mVideoView.isPlaying();
     }
 
     @Override
     public int getBufferPercentage() {
-        return 0;
+        return mVideoView.getBufferPercentage();
     }
 
     @Override
     public boolean canPause() {
-        return false;
+        return mVideoView.canPause();
     }
 
     @Override
     public boolean canSeekBackward() {
-        return false;
+        return mVideoView.canSeekBackward();
     }
 
     @Override
     public boolean canSeekForward() {
-        return false;
+        return mVideoView.canSeekForward();
     }
 
     /**
@@ -107,7 +124,37 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
      */
     @Override
     public int getAudioSessionId() {
-        return 0;
+        return 0; // no l'usarem
     }
 
+    /**
+     * Called when a view has been clicked.
+     *
+     * @param v The view that was clicked.
+     */
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id){
+            case R.id.enrrera:
+                int newPos = mVideoView.getCurrentPosition()-5*1000;
+                if (mVideoView.canSeekBackward() && newPos>0)
+                    mVideoView.seekTo(newPos);
+
+            case R.id.play_pause:
+                if (isPlaying()){
+                    pause();
+                    mBtnPlayPause.setBackgroundResource(R.drawable.ic_action_play);
+                }else{
+                    start();
+                    mBtnPlayPause.setBackgroundResource(R.drawable.ic_action_pause);
+                }
+            case R.id.endeban:
+                int newPos2 = mVideoView.getCurrentPosition()-5*1000;
+                if (mVideoView.canSeekBackward() && newPos2<getDuration())
+                    mVideoView.seekTo(newPos2);
+            case R.id.fullScreen:
+
+        }
+    }
 }

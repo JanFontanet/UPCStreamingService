@@ -17,9 +17,38 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/mediaController"
-        android:layout_below="@+id/mediaController"
+        android:layout_below="@+id/video"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="0dp" />
+        android:layout_marginTop="0dp" >
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:buttonBarStyle"
+            android:background="@drawable/ic_action_rewind"
+            android:id="@+id/enrrera"/>
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:buttonBarStyle"
+            android:background="@drawable/ic_action_play"
+            android:id="@+id/play_pause"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:buttonBarStyle"
+            android:background="@drawable/ic_action_fast_forward"
+            android:id="@+id/endeban"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:buttonBarStyle"
+            android:background="@drawable/ic_action_full_screen"
+            android:id="@+id/fullScreen"/>
+        </MediaController>
 
     <TextView
         android:layout_width="match_parent"
