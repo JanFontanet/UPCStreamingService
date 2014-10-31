@@ -1,17 +1,19 @@
 package pbe.upcstreamingservice;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     private ListView mListView;
+    private Button mSyncButton;
 
 
     @Override
@@ -20,6 +22,10 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         mListView = (ListView)findViewById(android.R.id.list);
+        mSyncButton = (Button)findViewById(R.id.syncbtn);
+
+        mListView.setOnItemClickListener(this);
+
     }
 
 
@@ -43,5 +49,25 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Callback method to be invoked when an item in this AdapterView has
+     * been clicked.
+     * <p/>
+     * Implementers can call getItemAtPosition(position) if they need
+     * to access the data associated with the selected item.
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this
+     *                 will be a view provided by the adapter)
+     * @param position The position of the Video in a List.
+     * @param id       The row id of the Video.
+     */
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        /**
+         *  Go to the videoActivity
+         */
     }
 }

@@ -6,23 +6,26 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity">
+    tools:context="pbe.upcstreamingservice.Multimedia">
 
-    <ListView
+    <VideoView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:id="@+id/video"/>
+
+    <MediaController
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@android:id/list"/>
+        android:id="@+id/mediaController"
+        android:layout_below="@+id/mediaController"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="0dp" />
 
-    <TextView android:text="@string/buit"
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <Button
-        android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@android:id/empty"
-        android:visibility="gone"
-        android:id="@+id/syncbtn"
-        android:text="@string/btnSync"/>
+        android:id="@+id/mediaInfo"
+        android:layout_below="@+id/video"
+        android:layout_marginTop="16dp"/>
 
 </RelativeLayout>

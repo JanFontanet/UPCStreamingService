@@ -16,6 +16,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="pbe.upcstreamingservice.Multimedia"
+            android:label="@string/title_activity_multimedia"
+            android:parentActivityName="pbe.upcstreamingservice.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pbe.upcstreamingservice.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
