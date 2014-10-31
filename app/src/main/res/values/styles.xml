@@ -3,7 +3,62 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        <item name="actionBarItemBackground">@drawable/selectable_background_pbe</item>
+        <item name="popupMenuStyle">@style/PopupMenu.Pbe</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Pbe</item>
+        <item name="actionBarTabStyle">@style/ActionBarTabStyle.Pbe</item>
+        <item name="actionDropDownStyle">@style/DropDownNav.Pbe</item>
+        <item name="actionBarStyle">@style/ActionBar.Solid.Pbe</item>
+        <item name="actionModeBackground">@drawable/cab_background_top_pbe</item>
+        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_pbe</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Pbe</item>
+
+        <!-- Light.DarkActionBar specific -->
+        <item name="actionBarWidgetTheme">@style/Theme.Pbe.Widget</item>
+    </style>
+
+    <style name="ActionBar.Solid.Pbe" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@drawable/ab_solid_pbe</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_solid_pbe</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_solid_pbe</item>
+        <item name="progressBarStyle">@style/ProgressBar.Pbe</item>
+    </style>
+
+    <style name="ActionBar.Transparent.Pbe" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="background">@drawable/ab_transparent_pbe</item>
+        <item name="progressBarStyle">@style/ProgressBar.Pbe</item>
+    </style>
+
+    <style name="PopupMenu.Pbe" parent="@style/Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_pbe</item>
+    </style>
+
+    <style name="DropDownListView.Pbe" parent="@style/Widget.AppCompat.ListView.DropDown">
+        <item name="android:listSelector">@drawable/selectable_background_pbe</item>
+    </style>
+
+    <style name="ActionBarTabStyle.Pbe" parent="@style/Widget.AppCompat.ActionBar.TabView">
+        <item name="android:background">@drawable/tab_indicator_ab_pbe</item>
+    </style>
+
+    <style name="DropDownNav.Pbe" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
+        <item name="android:background">@drawable/spinner_background_ab_pbe</item>
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_pbe</item>
+        <item name="android:dropDownSelector">@drawable/selectable_background_pbe</item>
+    </style>
+
+    <style name="ProgressBar.Pbe" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/progress_horizontal_pbe</item>
+    </style>
+
+    <style name="ActionButton.CloseMode.Pbe" parent="@style/Widget.AppCompat.ActionButton.CloseMode">
+        <item name="android:background">@drawable/btn_cab_done_pbe</item>
+    </style>
+
+    <!-- this style is only referenced in a Light.DarkActionBar based theme -->
+    <style name="Theme.Pbe.Widget" parent="@style/Theme.AppCompat">
+        <item name="popupMenuStyle">@style/PopupMenu.Pbe</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Pbe</item>
     </style>
 
 </resources>

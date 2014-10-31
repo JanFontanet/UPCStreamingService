@@ -11,6 +11,8 @@ import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import java.util.ArrayList;
+
 
 public class Multimedia extends ActionBarActivity implements MediaController.MediaPlayerControl, View.OnClickListener{
 
@@ -18,10 +20,8 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
     private MediaController mMediaController;
     private TextView mMediaDescription;
 
-    private Button mBtnEnrrera;
-    private Button mBtnPlayPause;
-    private Button mBtnEndeban;
-    private Button mBtnFullScreen;
+    private ArrayList<String> urls;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,18 +33,15 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
 
         if (extras.isEmpty())
             return;
-        String urlVideo = extras.getString(MainActivity.VIDEO);
+        String urlVideo = extras.getString(MainActivity.VIDEO); //URL de l'arxiu m3u8
 
         downloadVideo(urlVideo);
 
         mVideoView = (VideoView)findViewById(R.id.video);
-        mMediaController = (MediaController)findViewById(R.id.mediaController);
+        mMediaController = new MediaController(this);
         mMediaDescription = (TextView)findViewById(R.id.mediaInfo);
 
-        mBtnEndeban = (Button)mMediaController.findViewById(R.id.endeban);
-        mBtnEnrrera = (Button)mMediaController.findViewById(R.id.enrrera);
-        mBtnPlayPause = (Button)mMediaController.findViewById(R.id.play_pause);
-        mBtnFullScreen = (Button)mMediaController.findViewById(R.id.fullScreen);
+        mVideoView.setMediaController(mMediaController);
 
     }
 
@@ -139,27 +136,6 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
      */
     @Override
     public void onClick(View v) {
-        int id = v.getId();
-        switch (id){
-            case R.id.enrrera:
-                int newPos = mVideoView.getCurrentPosition()-5*1000;
-                if (mVideoView.canSeekBackward() && newPos>0)
-                    mVideoView.seekTo(newPos);
 
-            case R.id.play_pause:
-                if (isPlaying()){
-                    pause();
-                    mBtnPlayPause.setBackgroundResource(R.drawable.ic_action_play);
-                }else{
-                    start();
-                    mBtnPlayPause.setBackgroundResource(R.drawable.ic_action_pause);
-                }
-            case R.id.endeban:
-                int newPos2 = mVideoView.getCurrentPosition()-5*1000;
-                if (mVideoView.canSeekBackward() && newPos2<getDuration())
-                    mVideoView.seekTo(newPos2);
-            case R.id.fullScreen:
-
-        }
     }
 }

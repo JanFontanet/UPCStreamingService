@@ -3,6 +3,8 @@ package pbe.upcstreamingservice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,12 +12,17 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import pbe.upcstreamingservice.Adapters.MediaAdapter;
 
-public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+
+public class MainActivity extends ActionBarActivity {
 
     public static String VIDEO = "video";
 
-    private ListView mListView;
+    private RecyclerView mListView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mManager;
+
     private Button mSyncButton;
 
 
@@ -24,10 +31,17 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mListView = (ListView)findViewById(android.R.id.list);
+        mListView = (RecyclerView)findViewById(R.id.my_recycler_view);
         mSyncButton = (Button)findViewById(R.id.syncbtn);
 
-        mListView.setOnItemClickListener(this);
+        mListView.setHasFixedSize(false);
+
+        // use a linear layout manager
+        mManager = new LinearLayoutManager(this);
+        mListView.setLayoutManager(mManager);
+
+        mAdapter = new MediaAdapter(null);  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
+        mListView.setAdapter(mAdapter);
 
     }
 
@@ -54,24 +68,4 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Callback method to be invoked when an item in this AdapterView has
-     * been clicked.
-     * <p/>
-     * Implementers can call getItemAtPosition(position) if they need
-     * to access the data associated with the selected item.
-     *
-     * @param parent   The AdapterView where the click happened.
-     * @param view     The view within the AdapterView that was clicked (this
-     *                 will be a view provided by the adapter)
-     * @param position The position of the Video in a List.
-     * @param id       The row id of the Video.
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent i = new Intent(MainActivity.this, Multimedia.class);
-        i.putExtra(VIDEO, (String)mListView.getItemAtPosition(position));
-
-        startActivity(i);
-    }
 }
