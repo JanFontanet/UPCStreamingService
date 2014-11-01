@@ -6,12 +6,13 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class Multimedia extends ActionBarActivity implements MediaController.MediaPlayerControl, View.OnClickListener{
@@ -19,8 +20,10 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
     private VideoView mVideoView;
     private MediaController mMediaController;
     private TextView mMediaDescription;
+    private String urlVideo;
+    private int videoDuration;
 
-    private ArrayList<String> urls;
+    private HashMap<String, Float> urls;
 
 
     @Override
@@ -28,12 +31,15 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multimedia);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
 
         if (extras.isEmpty())
             return;
-        String urlVideo = extras.getString(MainActivity.VIDEO); //URL de l'arxiu m3u8
+
+        urlVideo = extras.getString(MainActivity.VIDEO); //URL de l'arxiu m3u8
 
         downloadVideo(urlVideo);
 
@@ -54,6 +60,25 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
 
     }
 
+    //De moment implementació bàsica, només una resolució, no idiomes, no coses rares..
+
+    private void parsingURLs(FileInputStream m3u8) {
+        String urlsfile = m3u8.toString();
+        String[] files = urlsfile.split("\n");
+        String tag="";
+        for (String s : files){
+            if (s.substring(0,0).equals("#")){
+                tag = s.substring(1);
+                if (tag.contains("EXT-X-TARGETDURATION:")){
+                    videoDuration = Integer.parseInt(tag.substring(21));
+                }
+            }else if (!tag.equals("")){
+                urls.put(s , Float.parseFloat(tag.substring(7, tag.length()-2)));
+            }
+        }
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,6 +90,13 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
+        int id = item.getItemId();
+        switch (id){
+            case R.id.preguntes:
+                Intent i = new Intent(Multimedia.this, ChatActivity.class);
+                i.putExtra(MainActivity.VIDEO, urlVideo);
+                startActivity(i);
+        }
         return super.onOptionsItemSelected(item);
     }
 

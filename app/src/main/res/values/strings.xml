@@ -8,5 +8,6 @@
     <string name="title_activity_multimedia">Multimedia</string>
     <string name="btnSync">Try to Syncronize</string>
     <string name="title_activity_chat">ChatActivity</string>
+    <string name="preguntes">Preguntes</string>
 
 </resources>

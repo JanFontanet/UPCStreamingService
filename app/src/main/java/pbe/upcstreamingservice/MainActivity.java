@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -40,8 +42,28 @@ public class MainActivity extends ActionBarActivity {
         mManager = new LinearLayoutManager(this);
         mListView.setLayoutManager(mManager);
 
-        mAdapter = new MediaAdapter(null);  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
+        mAdapter = new MediaAdapter(new String[]{"Lore Ipsum$Lorem ipsum$http://192.168.1.100/index.html"});  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
         mListView.setAdapter(mAdapter);
+
+        mListView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
+                View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
+                Log.d("MAIN", "onClick()...");
+                if (child!=null){
+                    Log.d("MAIN", "onClick()... child!=null..");
+                    Intent i = new Intent(MainActivity.this, Multimedia.class);
+                    i.putExtra(VIDEO, (String)child.getTag());
+                    startActivity(i);
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
+
+            }
+        });
 
     }
 
@@ -58,12 +80,6 @@ public class MainActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
