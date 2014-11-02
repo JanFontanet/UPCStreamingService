@@ -17,8 +17,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:id="@+id/syncbtn"
-        android:text="@string/btnSync"/>
+        android:text="@string/btnSync"
+        android:layout_centerInParent="true"/>
 
 </RelativeLayout>
