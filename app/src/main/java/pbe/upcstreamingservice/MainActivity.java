@@ -108,10 +108,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void selectNetwork() {
+        Toast.makeText(this, "selectNetwork", Toast.LENGTH_SHORT).show();
         wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
         if (!wm.isWifiEnabled()){
             wm.setWifiEnabled(true);
         }
+        Toast.makeText(this, "receiver", Toast.LENGTH_SHORT).show();
         receiver = new WifiReceiver();
         registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         wm.startScan();

@@ -9,15 +9,13 @@
         android:layout_height="wrap_content"
         android:id="@+id/title"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_marginTop="5dp"
-        android:text="Titulo de ejemplo"/>
+        android:layout_marginTop="5dp"/>
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="34dp"
+        android:layout_height="37dp"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:id="@+id/subtitle"
-        android:layout_marginTop="5dp"
-        android:text="Subtitulo, explicacion del contenido del video al que se accedera dando click aqui"/>
+        android:layout_marginTop="5dp"/>
 
 </LinearLayout>
