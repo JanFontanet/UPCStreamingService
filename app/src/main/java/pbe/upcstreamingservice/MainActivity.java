@@ -115,9 +115,8 @@ public class MainActivity extends ActionBarActivity {
         }
         receiver = new WifiReceiver();
         registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        Toast.makeText(this, "receiver", Toast.LENGTH_SHORT).show();
         wm.startScan();
-
+        Toast.makeText(this, "receiver", Toast.LENGTH_SHORT).show();
     }
 
     @Override
