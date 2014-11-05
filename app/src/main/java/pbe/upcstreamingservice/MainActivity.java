@@ -140,7 +140,7 @@ public class MainActivity extends ActionBarActivity {
 
             ArrayList<HashMap<String, String>>arrayList = new ArrayList<HashMap<String, String>>();
 
-            Toast.makeText(getApplicationContext(), "Scaneando...", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Scaneando...", Toast.LENGTH_LONG).show();
             HashMap<String,String> item;
 
             for (int i = 0; i < wifiList.size();i++ ) {
@@ -160,7 +160,7 @@ public class MainActivity extends ActionBarActivity {
 
             String[] from = new String[]{"SSID", "BSSID"};
             int[] to = new int[]{android.R.id.text1, android.R.id.text2};
-            final SimpleAdapter adapter = new SimpleAdapter(getApplicationContext(), arrayList, android.R.layout.two_line_list_item, from, to);
+            final SimpleAdapter adapter = new SimpleAdapter(context, arrayList, android.R.layout.two_line_list_item, from, to);
 
             ListView lv = (ListView)dialog.findViewById(R.id.ssidList);
             lv.setAdapter(adapter);
