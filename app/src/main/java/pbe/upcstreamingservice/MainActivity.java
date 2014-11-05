@@ -53,6 +53,7 @@ public class MainActivity extends ActionBarActivity {
     private RecyclerView.LayoutManager mManager;
 
     private WifiManager wm;
+    private WifiReceiver receiver;
 
     private Button mSyncButton;
 
@@ -87,6 +88,7 @@ public class MainActivity extends ActionBarActivity {
                     Log.d("MAIN", "onClick()... child!=null..");
                     Intent i = new Intent(MainActivity.this, Multimedia.class);
                     i.putExtra(VIDEO, (String)child.getTag());
+                    unregisterReceiver(receiver);
                     startActivity(i);
                 }
                 return false;
@@ -110,7 +112,7 @@ public class MainActivity extends ActionBarActivity {
         if (!wm.isWifiEnabled()){
             wm.setWifiEnabled(true);
         }
-        WifiReceiver receiver = new WifiReceiver();
+        receiver = new WifiReceiver();
         registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         wm.startScan();
 
