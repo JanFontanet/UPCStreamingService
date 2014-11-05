@@ -9,5 +9,6 @@
     <string name="btnSync">Try to Syncronize</string>
     <string name="title_activity_chat">ChatActivity</string>
     <string name="preguntes">Preguntes</string>
+    <string name="ok">OK</string>
 
 </resources>

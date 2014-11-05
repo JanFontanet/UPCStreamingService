@@ -64,6 +64,7 @@ public class MainActivity extends ActionBarActivity {
 
         mListView = (RecyclerView)findViewById(R.id.my_recycler_view);
         mSyncButton = (Button)findViewById(R.id.syncbtn);
+        mSyncButton.setVisibility(View.GONE);
 
         mListView.setHasFixedSize(false);
 
@@ -71,7 +72,7 @@ public class MainActivity extends ActionBarActivity {
         mManager = new LinearLayoutManager(this);
         mListView.setLayoutManager(mManager);
 
-        conectNetwork();
+        selectNetwork();
 
         mAdapter = new MediaAdapter(new String[]{"Lorem Ipsum$Lorem ipsum ad his scripta blandit partiendo, eum fastidii accumsan euripidis in, eum liber hendrerit an. Qui ut wisi vocibus suscipiantur, quo dicit ridens inciderint id. Quo mundi lobortis reformidans eu, legimus senserit definiebas an eos. Eu sit tincidunt incorrupte definitionem, vis mutat affert percipit cu, eirmod consectetuer signiferumque eu per. In usu latine equidem dolores. Quo no falli viris intellegam, ut fugit veritus placerat per.\n" +
                 "Ius id vidit volumus mandamus, vide veritus democritum te nec, ei eos debet libris consulatu. No mei ferri graeco dicunt, ad cum veri accommodare. Sed at malis omnesque delicata, usu et iusto zzril meliore. Dicunt maiorum eloquentiam cum cu, sit summo dolor essent te. Ne quodsi nusquam legendos has, ea dicit voluptua eloquentiam pro, ad sit quas qualisque. Eos vocibus deserunt quaestio ei.$http://192.168.1.100/index.html"});  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
@@ -101,18 +102,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void conectNetwork() {
 
-        selectNetwork();
 
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ntwinfo = cm.getActiveNetworkInfo();
-
-        if (ntwinfo!=null && ntwinfo.isConnected()){
-            mSyncButton.setVisibility(View.GONE);
-
-            //Descargar Titols dels Videos i descripció aixi com la URL del m3u8.
-        }else{
-            mSyncButton.setVisibility(View.VISIBLE);
-        }
     }
 
     private void selectNetwork() {
@@ -123,7 +113,6 @@ public class MainActivity extends ActionBarActivity {
         WifiReceiver receiver = new WifiReceiver();
         registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         wm.startScan();
-
 
     }
 
@@ -171,10 +160,21 @@ public class MainActivity extends ActionBarActivity {
 
             String[] from = new String[]{"SSID", "BSSID"};
             int[] to = new int[]{android.R.id.text1, android.R.id.text2};
-            SimpleAdapter adapter = new SimpleAdapter(getApplicationContext(), arrayList, android.R.layout.two_line_list_item, from, to);
+            final SimpleAdapter adapter = new SimpleAdapter(getApplicationContext(), arrayList, android.R.layout.two_line_list_item, from, to);
 
             ListView lv = (ListView)dialog.findViewById(R.id.ssidList);
             lv.setAdapter(adapter);
+
+            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    dialog.dismiss();
+                    adapter.getItem(position);
+
+                }
+            });
+
+            dialog.show();
         }
 
     }
