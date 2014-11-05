@@ -140,11 +140,12 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Toast.makeText(context, "Scaneando...", Toast.LENGTH_LONG).show();
+
             List<ScanResult> wifiList = wm.getScanResults();
 
             ArrayList<HashMap<String, String>>arrayList = new ArrayList<HashMap<String, String>>();
 
-            Toast.makeText(context, "Scaneando...", Toast.LENGTH_LONG).show();
             HashMap<String,String> item;
 
             for (int i = 0; i < wifiList.size();i++ ) {
