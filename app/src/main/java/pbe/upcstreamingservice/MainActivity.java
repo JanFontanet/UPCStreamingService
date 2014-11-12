@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -52,10 +53,9 @@ public class MainActivity extends ActionBarActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mManager;
 
-    private WifiManager wm;
-    private WifiReceiver receiver;
-
     private Button mSyncButton;
+
+    private String hostURI;
 
 
     @Override
@@ -88,7 +88,7 @@ public class MainActivity extends ActionBarActivity {
                     Log.d("MAIN", "onClick()... child!=null..");
                     Intent i = new Intent(MainActivity.this, Multimedia.class);
                     i.putExtra(VIDEO, (String)child.getTag());
-                    unregisterReceiver(receiver);
+                    //unregisterReceiver(receiver);
                     startActivity(i);
                 }
                 return false;
@@ -102,21 +102,47 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    private void conectNetwork() {
+    private void connectHost(String urlHost) {
 
 
     }
 
     private void selectNetwork() {
-        Toast.makeText(this, "selectNetwork", Toast.LENGTH_SHORT).show();
-        wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
-        if (!wm.isWifiEnabled()){
-            wm.setWifiEnabled(true);
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (networkInfo != null && networkInfo.isConnected()) {
+            final Dialog dialog  = new Dialog(this);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.dialog_ssid);
+            dialog.setCancelable(false);
+
+            final Context c = this;
+
+            TextView title = (TextView)dialog.findViewById(R.id.title);
+            final EditText host = (EditText)dialog.findViewById(R.id.host);
+            Button ok = (Button)dialog.findViewById(R.id.ok);
+
+            title.setText(R.string.seleccioHost);
+            host.setHint(getString(R.string.host));
+            ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!host.getText().toString().equals("")) {
+                        dialog.dismiss();
+                        hostURI=(host.getText().toString());
+                        DownloadWebInfo dww = new DownloadWebInfo();
+                        dww.doInBackground(new String[]{"index.html"});
+                    }else{
+                        Toast.makeText(c, getString(R.string.insertHost), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            dialog.show();
+        } else {
+            Toast.makeText(this, getString(R.string.conectWifiHost), Toast.LENGTH_SHORT).show();
         }
-        receiver = new WifiReceiver();
-        registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        wm.startScan();
-        Toast.makeText(this, "receiver", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -133,54 +159,6 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
 
         return super.onOptionsItemSelected(item);
-    }
-
-    class WifiReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context, "Scaneando...", Toast.LENGTH_LONG).show();
-
-            List<ScanResult> wifiList = wm.getScanResults();
-
-            ArrayList<HashMap<String, String>>arrayList = new ArrayList<HashMap<String, String>>();
-
-            HashMap<String,String> item;
-
-            for (int i = 0; i < wifiList.size();i++ ) {
-                item =  new HashMap<String, String>();
-                item.put("SSID", wifiList.get(i).SSID);
-                item.put("BSSID", wifiList.get(i).BSSID);
-                arrayList.add(item);
-            }
-
-            final Dialog dialog = new Dialog(getApplicationContext());
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.setContentView(R.layout.dialog_ssid);
-            dialog.setCancelable(false);
-
-            TextView title = (TextView)dialog.findViewById(R.id.title);
-            title.setText("SSID: ");
-
-            String[] from = new String[]{"SSID", "BSSID"};
-            int[] to = new int[]{android.R.id.text1, android.R.id.text2};
-            final SimpleAdapter adapter = new SimpleAdapter(context, arrayList, android.R.layout.two_line_list_item, from, to);
-
-            ListView lv = (ListView)dialog.findViewById(R.id.ssidList);
-            lv.setAdapter(adapter);
-
-            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    dialog.dismiss();
-                    adapter.getItem(position);
-
-                }
-            });
-
-            dialog.show();
-        }
-
     }
 
 
@@ -216,9 +194,9 @@ public class MainActivity extends ActionBarActivity {
 
         private String download(String s) throws IOException{
             InputStream is = null;
-            int len = 500;
+            int len = 9999;
             try{
-                URL url = new URL(s);
+                URL url = new URL(hostURI+"/"+s);
                 HttpURLConnection huc = (HttpURLConnection)url.openConnection();
                 huc.setReadTimeout(5000);
                 huc.setConnectTimeout(10000);

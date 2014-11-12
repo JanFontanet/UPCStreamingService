@@ -10,6 +10,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/title"/>
 
@@ -20,9 +23,26 @@
         android:layout_height="1dp"
         android:background="@color/app_color"/>
 
-    <ListView
+    <EditText
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:id="@+id/ssidList"/>
+        android:layout_height="wrap_content"
+        android:id="@+id/host"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="5dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/app_color"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:buttonBarStyle"
+        android:id="@+id/ok"/>
 
 </LinearLayout>
