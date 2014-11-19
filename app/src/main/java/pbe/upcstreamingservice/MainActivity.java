@@ -103,8 +103,9 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
-    }
 
+    }
+    
     private void selectNetwork() {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -131,7 +132,6 @@ public class MainActivity extends ActionBarActivity {
                         hostURI=(host.getText().toString());
                         DownloadWebInfo dww = new DownloadWebInfo();
                         dww.doInBackground(new String[]{"index.html"});
-
                     }else{
                         Toast.makeText(c, getString(R.string.insertHost), Toast.LENGTH_SHORT).show();
                     }
@@ -239,9 +239,9 @@ public class MainActivity extends ActionBarActivity {
                     toReturn+=aux+"¬¬";
                 }
 
-
             }
             return toReturn;
+            
         }
     }
 }
