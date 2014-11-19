@@ -66,7 +66,6 @@ public class MainActivity extends ActionBarActivity {
 
     SharedPreferences sp;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,6 +120,7 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
+   
 
     }
     
@@ -245,9 +245,9 @@ public class MainActivity extends ActionBarActivity {
                 Log.d("DOWNLOADER", "Apunto de hacer huc.connect()..");
 
                 huc.connect();
-                //int response = huc.getResponseCode();
+                int response = huc.getResponseCode();
 
-                Log.d("DOWNLOADER", "The response is: ");
+                Log.d("DOWNLOADER", "The response is: " + response);
                 is = huc.getInputStream();
 
                 // Convert the InputStream into a string
@@ -259,7 +259,6 @@ public class MainActivity extends ActionBarActivity {
                     is.close();
             }
         }
-
         private String[] readIt(InputStream is) throws IOException, UnsupportedEncodingException {
             Scanner scan = new Scanner(is);
             String toReturn="";
