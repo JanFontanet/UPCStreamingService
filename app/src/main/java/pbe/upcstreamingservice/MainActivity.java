@@ -41,6 +41,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 import pbe.upcstreamingservice.Adapters.MediaAdapter;
 
@@ -75,6 +76,9 @@ public class MainActivity extends ActionBarActivity {
 
         selectNetwork();
 
+    }
+
+    private void loadList(){
         mAdapter = new MediaAdapter(new String[]{"Lorem Ipsum$Lorem ipsum ad his scripta blandit partiendo, eum fastidii accumsan euripidis in, eum liber hendrerit an. Qui ut wisi vocibus suscipiantur, quo dicit ridens inciderint id. Quo mundi lobortis reformidans eu, legimus senserit definiebas an eos. Eu sit tincidunt incorrupte definitionem, vis mutat affert percipit cu, eirmod consectetuer signiferumque eu per. In usu latine equidem dolores. Quo no falli viris intellegam, ut fugit veritus placerat per.\n" +
                 "Ius id vidit volumus mandamus, vide veritus democritum te nec, ei eos debet libris consulatu. No mei ferri graeco dicunt, ad cum veri accommodare. Sed at malis omnesque delicata, usu et iusto zzril meliore. Dicunt maiorum eloquentiam cum cu, sit summo dolor essent te. Ne quodsi nusquam legendos has, ea dicit voluptua eloquentiam pro, ad sit quas qualisque. Eos vocibus deserunt quaestio ei.$http://192.168.1.100/index.html"});  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
         mListView.setAdapter(mAdapter);
@@ -99,19 +103,13 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
-
-    }
-
-    private void connectHost(String urlHost) {
-
-
     }
 
     private void selectNetwork() {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if (networkInfo != null && networkInfo.isConnected()) {
+        if (networkInfo != null && networkInfo.isConnected() && hostURI.equals("")) {
             final Dialog dialog  = new Dialog(this);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.setContentView(R.layout.dialog_ssid);
@@ -133,6 +131,7 @@ public class MainActivity extends ActionBarActivity {
                         hostURI=(host.getText().toString());
                         DownloadWebInfo dww = new DownloadWebInfo();
                         dww.doInBackground(new String[]{"index.html"});
+
                     }else{
                         Toast.makeText(c, getString(R.string.insertHost), Toast.LENGTH_SHORT).show();
                     }
@@ -189,7 +188,8 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            super.onPostExecute(s); //aqui s'omplira la llista..
+            super.onPostExecute(s);
+             loadList();//aqui s'omplira la llista..
         }
 
         private String download(String s) throws IOException{
@@ -219,11 +219,29 @@ public class MainActivity extends ActionBarActivity {
         }
 
         private String readIt(InputStream is, int len) throws IOException, UnsupportedEncodingException {
-            Reader reader = null;
-            reader = new InputStreamReader(is, "UTF-8");
-            char[] buffer = new char[len];
-            reader.read(buffer);
-            return new String(buffer);
+            Scanner scan = new Scanner(is);
+            String toReturn="";
+            while (scan.hasNextLine()){
+                String linea = scan.nextLine();
+                String aux="";
+                if (linea.contains("<a href=")){
+                    int contador=0;
+                    for (int i=0; i<linea.length();i++){
+                        if (linea.substring(i,i).equals("\"") && contador==0){
+                            contador=1;
+                        }else if(linea.substring(i,i).equals("\"") && contador==0){
+                            break;
+                        }
+                        if (contador==1){
+                            aux+=linea.substring(i,i);
+                        }
+                    }
+                    toReturn+=aux+"¬¬";
+                }
+
+
+            }
+            return toReturn;
         }
     }
 }
