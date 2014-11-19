@@ -103,8 +103,9 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
-    }
 
+    }
+    
     private void selectNetwork() {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -131,7 +132,6 @@ public class MainActivity extends ActionBarActivity {
                         hostURI=(host.getText().toString());
                         DownloadWebInfo dww = new DownloadWebInfo();
                         dww.doInBackground(new String[]{"index.html"});
-
                     }else{
                         Toast.makeText(c, getString(R.string.insertHost), Toast.LENGTH_SHORT).show();
                     }
@@ -156,7 +156,10 @@ public class MainActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-
+        switch (item.getItemId()){
+            case R.id.action_host:
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -239,9 +242,9 @@ public class MainActivity extends ActionBarActivity {
                     toReturn+=aux+"¬¬";
                 }
 
-
             }
             return toReturn;
+            
         }
     }
 }
