@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
@@ -37,7 +38,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +50,9 @@ import pbe.upcstreamingservice.Adapters.MediaAdapter;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    public static final String SPTITLE = "titulo";
+    public static final String SPHOSTURL= "hosturl";
 
     public static String VIDEO = "video";
 
@@ -58,6 +64,7 @@ public class MainActivity extends ActionBarActivity {
 
     private String hostURI;
 
+    SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,13 +81,24 @@ public class MainActivity extends ActionBarActivity {
         mManager = new LinearLayoutManager(this);
         mListView.setLayoutManager(mManager);
 
+        mAdapter = new MediaAdapter(null);  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
+        mListView.setAdapter(mAdapter);
+
+        sp= getSharedPreferences(SPTITLE, MODE_PRIVATE);
+        hostURI=sp.getString(SPHOSTURL, "");
+
         selectNetwork();
 
     }
 
-    private void loadList(){
-        mAdapter = new MediaAdapter(new String[]{"Lorem Ipsum$Lorem ipsum ad his scripta blandit partiendo, eum fastidii accumsan euripidis in, eum liber hendrerit an. Qui ut wisi vocibus suscipiantur, quo dicit ridens inciderint id. Quo mundi lobortis reformidans eu, legimus senserit definiebas an eos. Eu sit tincidunt incorrupte definitionem, vis mutat affert percipit cu, eirmod consectetuer signiferumque eu per. In usu latine equidem dolores. Quo no falli viris intellegam, ut fugit veritus placerat per.\n" +
-                "Ius id vidit volumus mandamus, vide veritus democritum te nec, ei eos debet libris consulatu. No mei ferri graeco dicunt, ad cum veri accommodare. Sed at malis omnesque delicata, usu et iusto zzril meliore. Dicunt maiorum eloquentiam cum cu, sit summo dolor essent te. Ne quodsi nusquam legendos has, ea dicit voluptua eloquentiam pro, ad sit quas qualisque. Eos vocibus deserunt quaestio ei.$http://192.168.1.100/index.html"});  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
+    private void loadList(String[] s){
+        String al="";
+        for (String a : s){
+            al+=a+"$.$"+a+"¬¬";
+        }
+        String[] aux = al.split("¬¬");
+
+        mAdapter = new MediaAdapter(aux);  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
         mListView.setAdapter(mAdapter);
 
         mListView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
@@ -88,11 +106,10 @@ public class MainActivity extends ActionBarActivity {
             public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
                 View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
                 Log.d("MAIN", "onClick()...");
-                if (child!=null){
+                if (child != null) {
                     Log.d("MAIN", "onClick()... child!=null..");
                     Intent i = new Intent(MainActivity.this, Multimedia.class);
-                    i.putExtra(VIDEO, (String)child.getTag());
-                    //unregisterReceiver(receiver);
+                    i.putExtra(VIDEO, (String) child.getTag());
                     startActivity(i);
                 }
                 return false;
@@ -103,6 +120,7 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
+   
 
     }
     
@@ -130,8 +148,17 @@ public class MainActivity extends ActionBarActivity {
                     if (!host.getText().toString().equals("")) {
                         dialog.dismiss();
                         hostURI=(host.getText().toString());
+                        sp.edit().putString(SPHOSTURL, hostURI).commit();
+
                         DownloadWebInfo dww = new DownloadWebInfo();
-                        dww.doInBackground(new String[]{"index.html"});
+                        URL url = null;
+                        try {
+                            url = new URL("http://192.168.1.100/");
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        }
+
+                        dww.execute(url);
                     }else{
                         Toast.makeText(c, getString(R.string.insertHost), Toast.LENGTH_SHORT).show();
                     }
@@ -141,6 +168,14 @@ public class MainActivity extends ActionBarActivity {
             dialog.show();
         } else {
             Toast.makeText(this, getString(R.string.conectWifiHost), Toast.LENGTH_SHORT).show();
+            DownloadWebInfo dww = new DownloadWebInfo();
+            URL url = null;
+            try {
+                url = new URL("http://192.168.1.100/");
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            dww.execute(url);
         }
     }
 
@@ -164,7 +199,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    private class DownloadWebInfo extends AsyncTask<String, Void, String> {
+    private class DownloadWebInfo extends AsyncTask<URL, Void, String[]> {
 
         /**
          * Override this method to perform a computation on a background thread. The
@@ -181,30 +216,36 @@ public class MainActivity extends ActionBarActivity {
          * @see #publishProgress
          */
         @Override
-        protected String doInBackground(String[] url) {
+        protected String[] doInBackground(URL[] url) {
             try {
+                Log.d("DoInBackground ", "entrado a download"+url[0]);
                 return download(url[0]);
             } catch (IOException e) {
-                return "Unable to Conect";
+                return new String[]{"Unable to Conect: " + e.toString()};
             }
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(String[] s) {
             super.onPostExecute(s);
-             loadList();//aqui s'omplira la llista..
+             loadList(s);//aqui s'omplira la llista..
         }
 
-        private String download(String s) throws IOException{
+        private String[] download(URL s) throws IOException{
             InputStream is = null;
-            int len = 9999;
+            Log.d("DOWNLOADER", "InputStream = null..");
+
             try{
-                URL url = new URL(hostURI+"/"+s);
-                HttpURLConnection huc = (HttpURLConnection)url.openConnection();
+                Log.d("DOWNLOADER", s.toString());
+
+                HttpURLConnection huc = (HttpURLConnection)s.openConnection();
+
                 huc.setReadTimeout(5000);
-                huc.setConnectTimeout(10000);
+                huc.setConnectTimeout(60000);
                 huc.setRequestMethod("GET");
-                huc.setDoInput(false);
+                huc.setDoInput(true);
+
+                Log.d("DOWNLOADER", "Apunto de hacer huc.connect()..");
 
                 huc.connect();
                 int response = huc.getResponseCode();
@@ -213,15 +254,15 @@ public class MainActivity extends ActionBarActivity {
                 is = huc.getInputStream();
 
                 // Convert the InputStream into a string
-                String contentAsString = readIt(is, len);
+                String[] contentAsString = readIt(is);
                 return contentAsString;
             }finally {
+                Log.d("DOWNLOADER", "FINALLY");
                 if (is!=null)
                     is.close();
             }
         }
-
-        private String readIt(InputStream is, int len) throws IOException, UnsupportedEncodingException {
+        private String[] readIt(InputStream is) throws IOException, UnsupportedEncodingException {
             Scanner scan = new Scanner(is);
             String toReturn="";
             while (scan.hasNextLine()){
@@ -231,7 +272,7 @@ public class MainActivity extends ActionBarActivity {
                     int contador=0;
                     for (int i=0; i<linea.length();i++){
                         if (linea.substring(i,i).equals("\"") && contador==0){
-                            contador=1;
+                            contador++;
                         }else if(linea.substring(i,i).equals("\"") && contador==0){
                             break;
                         }
@@ -243,8 +284,7 @@ public class MainActivity extends ActionBarActivity {
                 }
 
             }
-            return toReturn;
-            
+            return toReturn.split("¬¬");
         }
     }
 }

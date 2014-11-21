@@ -13,7 +13,7 @@
     <string name="seleccioHost">Direccio del Host:</string>
     <string name="host">host</string>
     <string name="insertHost">Inserta el Host</string>
-    <string name="conectWifiHost">Conectet a la red wifi del host</string>
+    <string name="conectWifiHost">Conectado a la red wifi del host</string>
 
 
 </resources>

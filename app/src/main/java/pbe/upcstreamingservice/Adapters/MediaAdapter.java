@@ -30,19 +30,23 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        StringTokenizer subcontent = new StringTokenizer(this.content[i], "$");
-        viewHolder.titol.setText(subcontent.nextToken());
-        String st = subcontent.nextToken();
-        if (st.length()>100)
-            viewHolder.subTitol.setText(st.substring(0, 100) + "...");
-        else
-            viewHolder.subTitol.setText(st);
-        viewHolder.itemView.setTag(this.content[i]);
+        if (content!=null) {
+            StringTokenizer subcontent = new StringTokenizer(this.content[i], "$");
+            viewHolder.titol.setText(subcontent.nextToken());
+            String st = subcontent.nextToken();
+            if (st.length() > 100)
+                viewHolder.subTitol.setText(st.substring(0, 100) + "...");
+            else
+                viewHolder.subTitol.setText(st);
+            viewHolder.itemView.setTag(this.content[i]);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return content.length;
+        if (content!=null)
+            return content.length;
+        return 0;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
