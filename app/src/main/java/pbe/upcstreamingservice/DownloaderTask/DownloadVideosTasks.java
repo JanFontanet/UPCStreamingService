@@ -1,8 +1,13 @@
 package pbe.upcstreamingservice.DownloaderTask;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Scanner;
 
 /**
  * Created by janfontanetcastillo on 2/11/14.
@@ -36,7 +41,37 @@ public class DownloadVideosTasks extends AsyncTask<String, Void, String> {
 
     }
 
-    private String download(String url) throws IOException{
-        return null;
+    private String download(String s) throws IOException{
+        InputStream is = null;
+
+        try {
+            Log.d("DOWNLOADER", s.toString());
+
+            URL url = new URL(s);
+
+            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+
+            huc.setReadTimeout(5000);
+            huc.setConnectTimeout(60000);
+            huc.setRequestMethod("GET");
+            huc.setDoInput(true);
+
+            Log.d("DOWNLOADER", "Apunto de hacer huc.connect()..");
+
+            huc.connect();
+            int response = huc.getResponseCode();
+
+            Log.d("DOWNLOADER", "The response is: " + response);
+            is = huc.getInputStream();
+            Scanner scanner = new Scanner(is);
+            String aux="";
+            do {
+                aux+=scanner.nextLine();
+            }while (scanner.hasNextLine());
+            return aux;
+        }finally {
+            if (is!=null)
+                is.close();
+        }
     }
 }

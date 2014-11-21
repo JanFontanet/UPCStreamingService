@@ -1,6 +1,7 @@
 package pbe.upcstreamingservice.Adapters;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,14 +32,22 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
         if (content!=null) {
+            String[] aux = this.content[i].split("$");
+            Log.d("MEDIA_ADAPTER ", "aux[0] ==" + aux[0]);
+            viewHolder.titol.setText(aux[0]);
+            String st = aux[1];
+            /*
             StringTokenizer subcontent = new StringTokenizer(this.content[i], "$");
             viewHolder.titol.setText(subcontent.nextToken());
             String st = subcontent.nextToken();
+            */
             if (st.length() > 100)
                 viewHolder.subTitol.setText(st.substring(0, 100) + "...");
             else
                 viewHolder.subTitol.setText(st);
+
             viewHolder.itemView.setTag(this.content[i]);
+
         }
     }
 

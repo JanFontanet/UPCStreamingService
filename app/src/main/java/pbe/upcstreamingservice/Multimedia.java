@@ -14,6 +14,8 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import pbe.upcstreamingservice.DownloaderTask.DownloadVideosTasks;
+
 
 public class Multimedia extends ActionBarActivity implements MediaController.MediaPlayerControl, View.OnClickListener{
 
@@ -39,7 +41,7 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         if (extras.isEmpty())
             return;
 
-        urlVideo = extras.getString(MainActivity.VIDEO); //URL de l'arxiu m3u8
+        urlVideo = extras.getString(MainActivity.VIDEO).split("$")[2]; //URL de l'arxiu m3u8
 
         downloadVideo(urlVideo);
 
@@ -57,7 +59,8 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
      * @param urlVideo
      */
     private void downloadVideo(String urlVideo) {
-
+        DownloadVideosTasks dvt = new DownloadVideosTasks();
+        dvt.execute(urlVideo);
     }
 
     //De moment implementació bàsica, només una resolució, no idiomes, no coses rares..

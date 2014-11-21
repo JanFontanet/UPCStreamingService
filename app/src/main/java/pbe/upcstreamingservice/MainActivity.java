@@ -94,7 +94,7 @@ public class MainActivity extends ActionBarActivity {
     private void loadList(String[] s){
         String al="";
         for (String a : s){
-            al+=a+"$.$"+a+"¬¬";
+            al+=a+"$-$"+a+"¬¬";
         }
         String[] aux = al.split("¬¬");
 
@@ -233,7 +233,6 @@ public class MainActivity extends ActionBarActivity {
 
         private String[] download(URL s) throws IOException{
             InputStream is = null;
-            Log.d("DOWNLOADER", "InputStream = null..");
 
             try{
                 Log.d("DOWNLOADER", s.toString());
