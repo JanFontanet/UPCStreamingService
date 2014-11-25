@@ -17,5 +17,8 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:id="@+id/subtitle"
         android:layout_marginTop="5dp"/>
-
+<View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="@color/black"/>
 </LinearLayout>

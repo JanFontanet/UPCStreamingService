@@ -1,73 +1,68 @@
 package pbe.upcstreamingservice.Adapters;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.StringTokenizer;
 
+import pbe.upcstreamingservice.MainActivity;
+import pbe.upcstreamingservice.Multimedia;
 import pbe.upcstreamingservice.R;
 
-public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> {
+public class MediaAdapter extends ArrayAdapter<String> {
 
     private String[] content;
 
-    public MediaAdapter (String[] mContent){
-        content = mContent;
+    /**
+     * Constructor
+     *
+     * @param context  The current context.
+     * @param objects  The objects to represent in the ListView.
+     */
+    public MediaAdapter(Context context, String[] objects) {
+        super(context, R.layout.list_row, objects);
+        content = objects;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-        View title = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.list_row, viewGroup, false);
-
-
-        return new ViewHolder(title);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        if (content!=null) {
-            String[] aux = this.content[i].split("$");
-            Log.d("MEDIA_ADAPTER ", "aux[0] ==" + aux[0]);
-            viewHolder.titol.setText(aux[0]);
-            String st = aux[1];
-            /*
-            StringTokenizer subcontent = new StringTokenizer(this.content[i], "$");
-            viewHolder.titol.setText(subcontent.nextToken());
-            String st = subcontent.nextToken();
-            */
-            if (st.length() > 100)
-                viewHolder.subTitol.setText(st.substring(0, 100) + "...");
-            else
-                viewHolder.subTitol.setText(st);
-
-            viewHolder.itemView.setTag(this.content[i]);
-
+        String aux = content[position];
+        ViewHolder vh;
+        if (convertView==null){
+            vh = new ViewHolder();
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            convertView = inflater.inflate(R.layout.list_row, parent ,false);
+            vh.titol = (TextView)convertView.findViewById(R.id.title);
+            vh.subTitol = (TextView)convertView.findViewById(R.id.subtitle);
+            convertView.setTag(vh);
+        }else{
+            vh = (ViewHolder)convertView.getTag();
         }
+
+        vh.titol.setText(aux.split("\"")[0]);
+        vh.subTitol.setText(aux.split("\"")[1]);
+
+        return convertView;
     }
 
     @Override
-    public int getItemCount() {
-        if (content!=null)
-            return content.length;
-        return 0;
+    public String getItem(int position) {
+        return content[position];
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder{
         // each data item is just a string in this case
         public TextView titol;
         public TextView subTitol;
-        public ViewHolder(View v) {
-            super(v);
-            titol = (TextView)v.findViewById(R.id.title);
-            subTitol = (TextView)v.findViewById(R.id.subtitle);
-        }
-
     }
 
 }

@@ -7,4 +7,5 @@
     <color name="app_title_color">#FFF</color>
     <color name="app_fons_color">#ffa9a9a9</color>
     <color name="app_navBar">#d8380202</color>
+    <color name="black">#000</color>
 </resources>

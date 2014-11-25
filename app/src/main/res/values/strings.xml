@@ -14,6 +14,9 @@
     <string name="host">host</string>
     <string name="insertHost">Inserta el Host</string>
     <string name="conectWifiHost">Conectado a la red wifi del host</string>
+    <string name="reintentar">Reintentar</string>
+    <string name="dirHost">Dirección del host:</string>
+    <string name="impCon">Impossible Conectar</string>
 
 
 </resources>

@@ -41,7 +41,7 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         if (extras.isEmpty())
             return;
 
-        urlVideo = extras.getString(MainActivity.VIDEO).split("$")[2]; //URL de l'arxiu m3u8
+        urlVideo = extras.getString(MainActivity.VIDEO).split("\"")[2]; //URL de l'arxiu m3u8
 
         downloadVideo(urlVideo);
 
