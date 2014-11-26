@@ -1,8 +1,10 @@
 package pbe.upcstreamingservice;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,14 +12,19 @@ import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import java.io.FileInputStream;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
-
-import pbe.upcstreamingservice.DownloaderTask.DownloadVideosTasks;
+import java.util.Scanner;
 
 
 public class Multimedia extends ActionBarActivity implements MediaController.MediaPlayerControl, View.OnClickListener{
+
+    public static final int MODO_UNA_QUALIDADES = 10;
+    public static final int MODO_DOS_QUALIDADES = 11;
+    public static final int MODO_TRES_QUALIDADES = 12;
 
     private VideoView mVideoView;
     private MediaController mMediaController;
@@ -41,7 +48,9 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         if (extras.isEmpty())
             return;
 
-        urlVideo = extras.getString(MainActivity.VIDEO).split("\"")[2]; //URL de l'arxiu m3u8
+        String ext =extras.getString(MainActivity.VIDEO);
+
+        urlVideo = ext.split("\"")[2]; //URL de l'arxiu m3u8
 
         downloadVideo(urlVideo);
 
@@ -50,6 +59,8 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         mMediaDescription = (TextView)findViewById(R.id.mediaInfo);
 
         mVideoView.setMediaController(mMediaController);
+
+        mMediaDescription.setText(ext.split("\"")[1]);
 
     }
 
@@ -60,23 +71,23 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
      */
     private void downloadVideo(String urlVideo) {
         DownloadVideosTasks dvt = new DownloadVideosTasks();
-        dvt.execute(urlVideo);
+        dvt.execute("http://"+"192.168.1.100"+"/"+urlVideo);
     }
 
     //De moment implementació bàsica, només una resolució, no idiomes, no coses rares..
 
-    private void parsingURLs(FileInputStream m3u8) {
-        String urlsfile = m3u8.toString();
+    private void parsingURLs(String m3u8) {
+        String urlsfile = m3u8;
         String[] files = urlsfile.split("\n");
         String tag="";
         for (String s : files){
-            if (s.substring(0,0).equals("#")){
+            if (s.substring(0,1).equals("#")){
                 tag = s.substring(1);
                 if (tag.contains("EXT-X-TARGETDURATION:")){
                     videoDuration = Integer.parseInt(tag.substring(21));
                 }
             }else if (!tag.equals("")){
-                urls.put(s , Float.parseFloat(tag.substring(7, tag.length()-2)));
+                urls.put(s , Float.parseFloat(tag.substring(7, tag.length()-1)));
             }
         }
 
@@ -172,5 +183,70 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
     @Override
     public void onClick(View v) {
 
+    }
+
+    public class DownloadVideosTasks extends AsyncTask<String, Void, String> {
+        /**
+         * Override this method to perform a computation on a background thread. The
+         * specified parameters are the parameters passed to {@link #execute}
+         * by the caller of this task.
+         * <p/>
+         * This method can call {@link #publishProgress} to publish updates
+         * on the UI thread.
+         *
+         * @param urls The parameters of the task.
+         * @return A result, defined by the subclass of this task.
+         * @see #onPreExecute()
+         * @see #onPostExecute
+         * @see #publishProgress
+         */
+        @Override
+        protected String doInBackground(String[] urls) {
+            try{
+                return download(urls[0]);
+            }catch(IOException e){
+                return "Unable to Conect";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            parsingURLs(s);
+        }
+
+        private String download(String s) throws IOException{
+            InputStream is = null;
+
+            try {
+                Log.d("DOWNLOADER", s.toString());
+
+                URL url = new URL(s);
+
+                HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+
+                huc.setReadTimeout(5000);
+                huc.setConnectTimeout(60000);
+                huc.setRequestMethod("GET");
+                huc.setDoInput(true);
+
+                Log.d("DOWNLOADER", "Apunto de hacer huc.connect()..");
+
+                huc.connect();
+                int response = huc.getResponseCode();
+
+                Log.d("DOWNLOADER", "The response is: " + response);
+                is = huc.getInputStream();
+                Scanner scanner = new Scanner(is);
+                String aux="";
+                do {
+                    aux+=scanner.nextLine()+"\n";
+                }while (scanner.hasNextLine());
+                Log.d("DOWNLOADER ", aux);
+                return aux;
+            }finally {
+                if (is!=null)
+                    is.close();
+            }
+        }
     }
 }
