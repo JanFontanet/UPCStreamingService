@@ -1,14 +1,20 @@
 package pbe.upcstreamingservice;
 
 import android.content.Intent;
+import android.graphics.PixelFormat;
+import android.media.AudioManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -16,11 +22,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import io.vov.vitamio.MediaPlayer;
 
-public class Multimedia extends ActionBarActivity implements MediaController.MediaPlayerControl, View.OnClickListener{
+
+public class Multimedia extends ActionBarActivity implements MediaController.MediaPlayerControl, View.OnClickListener, MediaPlayer.OnInfoListener, SurfaceHolder.Callback, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnVideoSizeChangedListener {
 
     public static final int MODO_UNA_QUALIDADES = 10;
     public static final int MODO_DOS_QUALIDADES = 11;
@@ -31,8 +40,26 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
     private TextView mMediaDescription;
     private String urlVideo;
     private int videoDuration;
+    private ProgressBar spinner;
+    private String urlHost;
 
-    private HashMap<String, Float> urls;
+    private ArrayList<String> urls;
+    private float duracio;
+
+    //new..
+
+    private boolean needResume;
+
+    private boolean mIsVideoSizeKnown = false;
+    private boolean mIsVideoReadyToBePlayed = false;
+
+    private int mVideoWidth;
+    private int mVideoHeight;
+    private MediaPlayer mMediaPlayer;
+    private SurfaceView mPreview;
+    private SurfaceHolder holder;
+    private String path;
+    private Bundle extras;
 
 
     @Override
@@ -43,24 +70,56 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
+        extras = intent.getExtras();
 
         if (extras.isEmpty())
             return;
-
-        String ext =extras.getString(MainActivity.VIDEO);
+/*
+        mPreview = (SurfaceView) findViewById(R.id.surface);
+        holder = mPreview.getHolder();
+        holder.addCallback(this);
+        holder.setFormat(PixelFormat.RGBA_8888);
+        //---
+*/      String ext =extras.getString(MainActivity.VIDEO);
+        urlHost = extras.getString(MainActivity.SPHOSTURL);
+        //---
+        path = "http://"+urlHost+"/"+ext.split("\"")[2];
 
         urlVideo = ext.split("\"")[2]; //URL de l'arxiu m3u8
+        spinner = (ProgressBar) findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.GONE);
 
-        downloadVideo(urlVideo);
+        urls = new ArrayList<String>();
 
         mVideoView = (VideoView)findViewById(R.id.video);
         mMediaController = new MediaController(this);
         mMediaDescription = (TextView)findViewById(R.id.mediaInfo);
 
+        mMediaController.setMediaPlayer(mVideoView);
         mVideoView.setMediaController(mMediaController);
 
+
         mMediaDescription.setText(ext.split("\"")[1]);
+        downloadVideo(urlVideo);
+    }
+
+    public void playVideo(){
+        doCleanUp();
+        try{
+            // Create a new media player and set the listeners
+            mMediaPlayer = new MediaPlayer(this);
+            mMediaPlayer.setDataSource(path);
+            mMediaPlayer.setDisplay(holder);
+            mMediaPlayer.prepareAsync();
+            mMediaPlayer.setOnBufferingUpdateListener(this);
+            mMediaPlayer.setOnCompletionListener(this);
+            mMediaPlayer.setOnPreparedListener(this);
+            mMediaPlayer.setOnVideoSizeChangedListener(this);
+            setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        } catch (Exception e) {
+            Log.e("HOLAAA ", "error: " + e.getMessage(), e);
+        }
 
     }
 
@@ -71,7 +130,11 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
      */
     private void downloadVideo(String urlVideo) {
         DownloadVideosTasks dvt = new DownloadVideosTasks();
-        dvt.execute("http://"+"192.168.1.100"+"/"+urlVideo);
+        spinner.setVisibility(View.VISIBLE);
+        mVideoView.setVideoURI(Uri.parse("http://"+urlHost+"/"+urlVideo));
+        mVideoView.requestFocus();
+        mVideoView.start();
+        dvt.execute("http://"+urlHost+"/"+urlVideo);
     }
 
     //De moment implementació bàsica, només una resolució, no idiomes, no coses rares..
@@ -81,15 +144,19 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         String[] files = urlsfile.split("\n");
         String tag="";
         for (String s : files){
-            if (s.substring(0,1).equals("#")){
+
+            if (s.length()>0 && s.substring(0,1).equals("#")){
                 tag = s.substring(1);
                 if (tag.contains("EXT-X-TARGETDURATION:")){
                     videoDuration = Integer.parseInt(tag.substring(21));
                 }
-            }else if (!tag.equals("")){
-                urls.put(s , Float.parseFloat(tag.substring(7, tag.length()-1)));
+            }else if (s.length()>0 && !tag.equals("")){
+                urls.add(s);
+                duracio = Float.parseFloat(tag.substring(7, tag.length()-1));
             }
         }
+
+        spinner.setVisibility(View.GONE);
 
     }
 
@@ -185,6 +252,120 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
 
     }
 
+    /**
+     * Called to indicate an info or a warning.
+     *
+     * @param mp    the MediaPlayer the info pertains to.
+     * @param what  the type of info or warning.
+     *
+     * @param extra an extra code, specific to the info. Typically
+     *              implementation dependent.
+     * @return True if the method handled the info, false if it didn't.
+     * Returning false, or not having an OnErrorListener at all, will
+     * cause the info to be discarded.
+     */
+    @Override
+    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+        switch (what){
+            case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                if (isPlaying()){
+                    pause();
+                    needResume=true;
+                }
+                spinner.setVisibility(View.VISIBLE);
+                break;
+            case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                if (needResume){
+                    start();
+                }
+                spinner.setVisibility(View.GONE);
+                break;
+            case MediaPlayer.MEDIA_INFO_DOWNLOAD_RATE_CHANGED:
+                //extra es la qualidad..
+                break;
+        }
+        return true;
+    }
+
+    public void surfaceChanged(SurfaceHolder surfaceholder, int i, int j, int k) {
+        Log.d("LELE", "surfaceChanged called");
+
+    }
+
+    public void surfaceDestroyed(SurfaceHolder surfaceholder) {
+        Log.d("LELE", "surfaceDestroyed called");
+    }
+
+    public void surfaceCreated(SurfaceHolder holder) {
+        Log.d("LELE", "surfaceCreated called");
+        playVideo();
+
+    }
+
+    public void onBufferingUpdate(MediaPlayer arg0, int percent) {
+        // Log.d(TAG, "onBufferingUpdate percent:" + percent);
+
+    }
+
+    public void onCompletion(MediaPlayer arg0) {
+        Log.d("LELE", "onCompletion called");
+    }
+
+    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+        Log.v("LELE", "onVideoSizeChanged called");
+        if (width == 0 || height == 0) {
+            Log.e("LELE", "invalid video width(" + width + ") or height(" + height + ")");
+            return;
+        }
+        mIsVideoSizeKnown = true;
+        mVideoWidth = width;
+        mVideoHeight = height;
+        if (mIsVideoReadyToBePlayed && mIsVideoSizeKnown) {
+            startVideoPlayback();
+        }
+    }
+
+    public void onPrepared(MediaPlayer mediaplayer) {
+        Log.d("LELE", "onPrepared called");
+        mIsVideoReadyToBePlayed = true;
+        if (mIsVideoReadyToBePlayed && mIsVideoSizeKnown) {
+            startVideoPlayback();
+        }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        releaseMediaPlayer();
+        doCleanUp();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releaseMediaPlayer();
+        doCleanUp();
+    }
+
+    private void releaseMediaPlayer() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+    }
+
+    private void doCleanUp() {
+        mVideoWidth = 0;
+        mVideoHeight = 0;
+        mIsVideoReadyToBePlayed = false;
+        mIsVideoSizeKnown = false;
+    }
+
+    private void startVideoPlayback() {
+        Log.v("LELE ", "startVideoPlayback");
+        holder.setFixedSize(mVideoWidth, mVideoHeight);
+        mMediaPlayer.start();
+    }
+
     public class DownloadVideosTasks extends AsyncTask<String, Void, String> {
         /**
          * Override this method to perform a computation on a background thread. The
@@ -203,6 +384,7 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         @Override
         protected String doInBackground(String[] urls) {
             try{
+
                 return download(urls[0]);
             }catch(IOException e){
                 return "Unable to Conect";

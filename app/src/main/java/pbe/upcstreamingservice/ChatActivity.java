@@ -40,6 +40,7 @@ public class ChatActivity extends ActionBarActivity {
             case R.id.home:
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 upIntent.putExtra(MainActivity.VIDEO, getIntent().getExtras().getString(MainActivity.VIDEO));
+                upIntent.putExtra(MainActivity.SPHOSTURL, getIntent().getExtras().getString(MainActivity.SPHOSTURL));
                 NavUtils.navigateUpTo(this, upIntent);
         }
 
