@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,8 @@ public class MainActivity extends ActionBarActivity {
 
     private String hostURI;
 
+    private ProgressBar spinner;
+
     SharedPreferences sp;
 
     @Override
@@ -56,6 +59,8 @@ public class MainActivity extends ActionBarActivity {
         mListView = (ListView)findViewById(R.id.my_recycler_view);
         mSyncButton = (Button)findViewById(R.id.syncbtn);
         mSyncButton.setVisibility(View.GONE);
+        spinner = (ProgressBar) findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.GONE);
 
         /*
         mAdapter = new MediaAdapter(this, null);  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
@@ -82,11 +87,13 @@ public class MainActivity extends ActionBarActivity {
 
             mAdapter = new MediaAdapter(this, aux);  //String[] amb -> {"Titol $ Subtitol $ url m3u", ... }
             mListView.setAdapter(mAdapter);
+            spinner.setVisibility(View.GONE);
 
             mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent intent = new Intent(MainActivity.this, Multimedia.class);
+                    intent.putExtra(SPHOSTURL, hostURI);
                     intent.putExtra(VIDEO, mAdapter.getItem(position));
                     startActivity(intent);
                 }
@@ -110,6 +117,7 @@ public class MainActivity extends ActionBarActivity {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
+            spinner.setVisibility(View.VISIBLE);
             dww.execute(url);
         }
     }
@@ -166,7 +174,7 @@ public class MainActivity extends ActionBarActivity {
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
-
+                    spinner.setVisibility(View.VISIBLE);
                     dww.execute(url);
                 }else{
                     Toast.makeText(c, getString(R.string.insertHost), Toast.LENGTH_SHORT).show();
@@ -195,7 +203,7 @@ public class MainActivity extends ActionBarActivity {
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
-
+                    spinner.setVisibility(View.VISIBLE);
                     dww.execute(url);
                 }else{
                     Toast.makeText(c, getString(R.string.insertHost), Toast.LENGTH_SHORT).show();
@@ -227,6 +235,7 @@ public class MainActivity extends ActionBarActivity {
         protected String[] doInBackground(URL[] url) {
             try {
                 Log.d("DoInBackground ", "entrado a download"+url[0]);
+
                 return download(url[0]);
             } catch (IOException e) {
                 return new String[]{"1"};

@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -31,8 +33,11 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
     private TextView mMediaDescription;
     private String urlVideo;
     private int videoDuration;
+    private ProgressBar spinner;
+    private String urlHost;
 
-    private HashMap<String, Float> urls;
+    private ArrayList<String> urls;
+    private float duracio;
 
 
     @Override
@@ -49,8 +54,13 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
             return;
 
         String ext =extras.getString(MainActivity.VIDEO);
+        urlHost = extras.getString(MainActivity.SPHOSTURL);
 
         urlVideo = ext.split("\"")[2]; //URL de l'arxiu m3u8
+        spinner = (ProgressBar) findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.GONE);
+
+        urls = new ArrayList<String>();
 
         downloadVideo(urlVideo);
 
@@ -71,7 +81,8 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
      */
     private void downloadVideo(String urlVideo) {
         DownloadVideosTasks dvt = new DownloadVideosTasks();
-        dvt.execute("http://"+"192.168.1.100"+"/"+urlVideo);
+        spinner.setVisibility(View.VISIBLE);
+        dvt.execute("http://"+urlHost+"/"+urlVideo);
     }
 
     //De moment implementació bàsica, només una resolució, no idiomes, no coses rares..
@@ -81,15 +92,19 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         String[] files = urlsfile.split("\n");
         String tag="";
         for (String s : files){
-            if (s.substring(0,1).equals("#")){
+
+            if (s.length()>0 && s.substring(0,1).equals("#")){
                 tag = s.substring(1);
                 if (tag.contains("EXT-X-TARGETDURATION:")){
                     videoDuration = Integer.parseInt(tag.substring(21));
                 }
-            }else if (!tag.equals("")){
-                urls.put(s , Float.parseFloat(tag.substring(7, tag.length()-1)));
+            }else if (s.length()>0 && !tag.equals("")){
+                urls.add(s);
+                duracio = Float.parseFloat(tag.substring(7, tag.length()-1));
             }
         }
+
+        spinner.setVisibility(View.GONE);
 
     }
 
@@ -203,6 +218,7 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
         @Override
         protected String doInBackground(String[] urls) {
             try{
+
                 return download(urls[0]);
             }catch(IOException e){
                 return "Unable to Conect";
