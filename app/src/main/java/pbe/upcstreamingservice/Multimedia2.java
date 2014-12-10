@@ -21,7 +21,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-
 public class Multimedia2 extends ActionBarActivity implements MediaController.MediaPlayerControl{
 
     private static final int QUALITY_LOW = 501;
