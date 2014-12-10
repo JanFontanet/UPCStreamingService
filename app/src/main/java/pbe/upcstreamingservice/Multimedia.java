@@ -43,8 +43,6 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
     private ProgressBar spinner;
     private String urlHost;
 
-    private ArrayList<String> urls;
-    private float duracio;
 
     //new..
 
@@ -60,6 +58,8 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
     private SurfaceHolder holder;
     private String path;
     private Bundle extras;
+    private ArrayList<String> urls;
+    private float duracio;
 
 
     @Override
@@ -93,13 +93,13 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
 
         mVideoView = (VideoView)findViewById(R.id.video);
         mMediaController = new MediaController(this);
-        mMediaDescription = (TextView)findViewById(R.id.mediaInfo);
+        //mMediaDescription = (TextView)findViewById(R.id.mediaInfo);
 
         mMediaController.setMediaPlayer(mVideoView);
         mVideoView.setMediaController(mMediaController);
 
 
-        mMediaDescription.setText(ext.split("\"")[1]);
+        //mMediaDescription.setText(ext.split("\"")[1]);
         downloadVideo(urlVideo);
     }
 
@@ -131,10 +131,11 @@ public class Multimedia extends ActionBarActivity implements MediaController.Med
     private void downloadVideo(String urlVideo) {
         DownloadVideosTasks dvt = new DownloadVideosTasks();
         spinner.setVisibility(View.VISIBLE);
+/*
         mVideoView.setVideoURI(Uri.parse("http://"+urlHost+"/"+urlVideo));
         mVideoView.requestFocus();
         mVideoView.start();
-        dvt.execute("http://"+urlHost+"/"+urlVideo);
+    */  dvt.execute("http://"+urlHost+"/"+urlVideo);
     }
 
     //De moment implementació bàsica, només una resolució, no idiomes, no coses rares..
