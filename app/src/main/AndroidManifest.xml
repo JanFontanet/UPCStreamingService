@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -22,15 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Multimedia"
-            android:label="@string/title_activity_multimedia"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="pbe.upcstreamingservice.MainActivity" />
-        </activity>
+
         <activity
             android:name=".ChatActivity"
             android:label="@string/title_activity_chat"
@@ -40,6 +34,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="pbe.upcstreamingservice.Multimedia" />
         </activity>
+
         <activity
             android:name="io.vov.vitamio.activity.InitActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation"
@@ -48,7 +43,12 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".Multimedia2"
-            android:label="@string/title_activity_multimedia2" >
+            android:label="@string/title_activity_multimedia2"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pbe.upcstreamingservice.MainActivity" />
         </activity>
     </application>
 

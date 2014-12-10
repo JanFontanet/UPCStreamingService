@@ -1,28 +1,36 @@
 package pbe.upcstreamingservice;
 
 import android.content.Intent;
+//import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.VideoView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.widget.MediaController;
+import io.vov.vitamio.widget.VideoView;
 
-public class Multimedia2 extends ActionBarActivity implements MediaController.MediaPlayerControl{
+public class Multimedia2 extends ActionBarActivity{
 
     private static final int QUALITY_LOW = 501;
     private static final int QUALITY_MID = 502;
@@ -47,6 +55,10 @@ public class Multimedia2 extends ActionBarActivity implements MediaController.Me
     private int videoDuration;
     private long duracio;
 
+    File defaultPath = Environment.getExternalStorageDirectory();
+
+    private int currentIndex;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +71,11 @@ public class Multimedia2 extends ActionBarActivity implements MediaController.Me
 
         if (extras.isEmpty())
             return;
+
+        lUrls= new ArrayList<String>();
+        mUrls = new ArrayList<String>();
+        hUrls = new ArrayList<String>();
+        audio = new ArrayList<String>();
 
         String ext =extras.getString(MainActivity.VIDEO);
         urlHost = extras.getString(MainActivity.SPHOSTURL);
@@ -86,9 +103,11 @@ public class Multimedia2 extends ActionBarActivity implements MediaController.Me
     private void downloadVideo(String urlVideo) {
         DownloadVideosTasks dvt = new DownloadVideosTasks();
         spinner.setVisibility(View.VISIBLE);
+        /*
         mVideoView.setVideoURI(Uri.parse("http://" + urlHost + "/" + urlVideo));
         mVideoView.requestFocus();
         mVideoView.start();
+        */
         dvt.execute("http://"+urlHost+"/"+urlVideo);
     }
 
@@ -122,7 +141,7 @@ public class Multimedia2 extends ActionBarActivity implements MediaController.Me
                 }else if(quality==AUDIO_ONLY){
                     audio.add(s);
                 }else {
-                    urls.add(s);
+                    lUrls.add(s);
                 }
                 duracio = Long.parseLong(tag.substring(7, tag.length() - 1));
             }else if(tag.contains("EXT-X-STREAM-INF:")){
@@ -133,8 +152,7 @@ public class Multimedia2 extends ActionBarActivity implements MediaController.Me
 
             }
         }
-
-        spinner.setVisibility(View.GONE);
+        //spinner.setVisibility(View.GONE);
 
     }
 
@@ -153,74 +171,41 @@ public class Multimedia2 extends ActionBarActivity implements MediaController.Me
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id){
-            case R.id.preguntes:
-                Intent i = new Intent(Multimedia2.this, ChatActivity.class);
-                i.putExtra(MainActivity.VIDEO, extras.getString(MainActivity.VIDEO));
-                i.putExtra(MainActivity.SPHOSTURL, urlHost);
-                startActivity(i);
+            case R.id.home:
+                Intent upIntent = NavUtils.getParentActivityIntent(this);
+                NavUtils.navigateUpTo(this, upIntent);
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void start() {
-        mVideoView.start();
-    }
+private void initVideo() {
+    spinner.setVisibility(View.GONE);
+    if (!io.vov.vitamio.LibsChecker.checkVitamioLibs(Multimedia2.this))
+        return;
 
-    @Override
-    public void pause() {
-        mVideoView.pause();
-    }
+    mVideoView.setVideoQuality(MediaPlayer.VIDEOQUALITY_LOW);
+    mVideoView.setVideoPath(defaultPath+"/temp"+currentIndex+".ts");
+    mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mediaPlayer) {
+            //delete file
+            currentIndex++;
+            if (currentIndex<lUrls.size()){
+                playNext(mediaPlayer);
+            }
+        }
+    });
 
-    @Override
-    public int getDuration() {
-        return videoDuration;
-    }
+}
 
-    @Override
-    public int getCurrentPosition() {
-        return mVideoView.getCurrentPosition();
-    }
-
-    @Override
-    public void seekTo(int pos) {
-        mVideoView.seekTo(pos);
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return mVideoView.isPlaying();
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        return mVideoView.getBufferPercentage();
-    }
-
-    @Override
-    public boolean canPause() {
-        return mVideoView.canPause();
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-        return mVideoView.canSeekBackward();
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return mVideoView.canSeekForward();
-    }
-
-    /**
-     * Get the audio session id for the player used by this VideoView. This can be used to
-     * apply audio effects to the audio track of a video.
-     *
-     * @return The audio session, or 0 if there was an error.
-     */
-    @Override
-    public int getAudioSessionId() {
-        return 0;
+    private void playNext(MediaPlayer mediaPlayer) {
+        mediaPlayer.reset();
+        try{
+            mediaPlayer.setDataSource(defaultPath+"/temp"+currentIndex+".ts");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mediaPlayer.prepareAsync();
     }
 
     public class DownloadVideosTasks extends AsyncTask<String, Void, String> {
@@ -251,6 +236,9 @@ public class Multimedia2 extends ActionBarActivity implements MediaController.Me
         @Override
         protected void onPostExecute(String s) {
             parsingURLs(s, 0);
+            DownloadTS dTS = new DownloadTS();
+
+            dTS.execute(lUrls);
         }
 
         private String download(String s) throws IOException{
@@ -287,5 +275,74 @@ public class Multimedia2 extends ActionBarActivity implements MediaController.Me
                     is.close();
             }
         }
+    }
+
+    public class DownloadTS extends AsyncTask<ArrayList<String>, Integer, Void>{
+
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            if (values[0]==0){
+                initVideo();
+            }
+        }
+
+        /**
+         * Override this method to perform a computation on a background thread. The
+         * specified parameters are the parameters passed to {@link #execute}
+         * by the caller of this task.
+         * <p/>
+         * This method can call {@link #publishProgress} to publish updates
+         * on the UI thread.
+         *
+         * @param params The parameters of the task.
+         * @return A result, defined by the subclass of this task.
+         * @see #onPreExecute()
+         * @see #onPostExecute
+         * @see #publishProgress
+         */
+        @Override
+        protected Void doInBackground(ArrayList<String>... params) {
+            for (int i=0; i<params[0].size(); i++){
+
+                download(params[0].get(i), defaultPath, "temp" + i + ".ts");
+                publishProgress(i);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+
+        private void download(String tsUrl, File path, String fileName) {
+
+            FileOutputStream fos;
+            InputStream is = null;
+            try{
+                File file = new File(path, fileName);
+                fos = new FileOutputStream(file);
+                is = new URL(tsUrl).openConnection().getInputStream();
+
+                byte[] buffer = new byte[999999];
+                int leido = is.read(buffer);
+                while (leido>0){
+                    fos.write(buffer, 0, leido);
+                    leido = is.read(buffer);
+                }
+                is.close();
+                fos.close();
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 }
