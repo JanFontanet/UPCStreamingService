@@ -55,6 +55,9 @@ public class Multimedia2 extends ActionBarActivity{
     private int videoDuration;
     private long duracio;
 
+    private long start;
+    private int numParts;
+
     File defaultPath = Environment.getExternalStorageDirectory();
 
     private int currentIndex;
@@ -287,33 +290,35 @@ private void initVideo() {
             }
         }
 
-        /**
-         * Override this method to perform a computation on a background thread. The
-         * specified parameters are the parameters passed to {@link #execute}
-         * by the caller of this task.
-         * <p/>
-         * This method can call {@link #publishProgress} to publish updates
-         * on the UI thread.
-         *
-         * @param params The parameters of the task.
-         * @return A result, defined by the subclass of this task.
-         * @see #onPreExecute()
-         * @see #onPostExecute
-         * @see #publishProgress
-         */
         @Override
-        protected Void doInBackground(ArrayList<String>... params) {
-            for (int i=0; i<params[0].size(); i++){
-
-                download(params[0].get(i), defaultPath, "temp" + i + ".ts");
-                publishProgress(i);
-            }
-            return null;
+        protected void onPostExecute(Void aVoid) {
+            if (numParts!=0)
+                initVideo();
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected Void doInBackground(ArrayList<String>... params) {
+            start = System.currentTimeMillis();
+            int q = 0; //qualitat, 0->low , 1->mid , 2->high
+            for (int i=0; i<params[0].size(); i++){
+
+                download(params[0].get(i), defaultPath, "temp" + i + ".ts");
+                numParts++;
+                long now = System.currentTimeMillis();
+                if (now-start/(2000*numParts)<duracio){
+                    if (q<2){
+                        q++;
+                    }
+                    numParts=0;
+                    publishProgress(0);
+                }else if(now-start/(1000*numParts)<duracio){
+                    numParts=0;
+                    publishProgress(0);
+                }else if(now-start/(1000*numParts)>=duracio && q>0){
+                    q--;
+                }
+            }
+            return null;
         }
 
         private void download(String tsUrl, File path, String fileName) {
