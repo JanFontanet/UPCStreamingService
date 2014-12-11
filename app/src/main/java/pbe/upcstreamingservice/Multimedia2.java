@@ -58,6 +58,8 @@ public class Multimedia2 extends ActionBarActivity{
     private long start;
     private int numParts;
 
+    private int definicio;
+
     File defaultPath = Environment.getExternalStorageDirectory();
 
     private int currentIndex;
@@ -138,8 +140,10 @@ public class Multimedia2 extends ActionBarActivity{
                 if (quality==QUALITY_LOW){
                     lUrls.add(s);
                 }else if (quality==QUALITY_MID){
+                    definicio=1;
                     mUrls.add(s);
                 }else if (quality==QUALITY_HI){
+                    definicio=2;
                     hUrls.add(s);
                 }else if(quality==AUDIO_ONLY){
                     audio.add(s);
@@ -241,7 +245,7 @@ private void initVideo() {
             parsingURLs(s, 0);
             DownloadTS dTS = new DownloadTS();
 
-            dTS.execute(lUrls);
+            dTS.execute(lUrls, mUrls, hUrls);
         }
 
         private String download(String s) throws IOException{
@@ -300,13 +304,13 @@ private void initVideo() {
         protected Void doInBackground(ArrayList<String>... params) {
             start = System.currentTimeMillis();
             int q = 0; //qualitat, 0->low , 1->mid , 2->high
-            for (int i=0; i<params[0].size(); i++){
+            for (int i=0; i<params[q].size(); i++){
 
-                download(params[0].get(i), defaultPath, "temp" + i + ".ts");
+                download(params[q].get(i), defaultPath, "temp" + i + ".ts");
                 numParts++;
                 long now = System.currentTimeMillis();
                 if (now-start/(2000*numParts)<duracio){
-                    if (q<2){
+                    if (q<definicio){
                         q++;
                     }
                     numParts=0;
