@@ -108,12 +108,8 @@ public class Multimedia2 extends ActionBarActivity{
     private void downloadVideo(String urlVideo) {
         DownloadVideosTasks dvt = new DownloadVideosTasks();
         spinner.setVisibility(View.VISIBLE);
-        /*
-        mVideoView.setVideoURI(Uri.parse("http://" + urlHost + "/" + urlVideo));
-        mVideoView.requestFocus();
-        mVideoView.start();
-        */
-        dvt.execute("http://"+urlHost+"/"+urlVideo);
+
+        dvt.execute("http://"+urlHost+"/"+urlVideo, "0");
     }
 
     private void parsingURLs(String m3u8, int quality) {
@@ -154,12 +150,13 @@ public class Multimedia2 extends ActionBarActivity{
             }else if(tag.contains("EXT-X-STREAM-INF:")){
                 if(tornarhi){
                     q++;
-                    parsingURLs(s, 500+q);
+
+                    DownloadVideosTasks dvt = new DownloadVideosTasks();
+                    dvt.execute(s, ""+q);
                 }
 
             }
         }
-        //spinner.setVisibility(View.GONE);
 
     }
 
@@ -185,7 +182,7 @@ public class Multimedia2 extends ActionBarActivity{
         return super.onOptionsItemSelected(item);
     }
 
-private void initVideo() {
+    private void initVideo() {
     spinner.setVisibility(View.GONE);
     if (!io.vov.vitamio.LibsChecker.checkVitamioLibs(Multimedia2.this))
         return;
@@ -216,24 +213,11 @@ private void initVideo() {
     }
 
     public class DownloadVideosTasks extends AsyncTask<String, Void, String> {
-        /**
-         * Override this method to perform a computation on a background thread. The
-         * specified parameters are the parameters passed to {@link #execute}
-         * by the caller of this task.
-         * <p/>
-         * This method can call {@link #publishProgress} to publish updates
-         * on the UI thread.
-         *
-         * @param urls The parameters of the task.
-         * @return A result, defined by the subclass of this task.
-         * @see #onPreExecute()
-         * @see #onPostExecute
-         * @see #publishProgress
-         */
+        private int qualitatDescargant;
         @Override
         protected String doInBackground(String[] urls) {
             try{
-
+                qualitatDescargant= Integer.parseInt(urls[1]);
                 return download(urls[0]);
             }catch(IOException e){
                 return "Unable to Conect";
@@ -242,10 +226,11 @@ private void initVideo() {
 
         @Override
         protected void onPostExecute(String s) {
-            parsingURLs(s, 0);
-            DownloadTS dTS = new DownloadTS();
-
-            dTS.execute(lUrls, mUrls, hUrls);
+            parsingURLs(s, qualitatDescargant);
+            if (!lUrls.isEmpty()) {
+                DownloadTS dTS = new DownloadTS();
+                dTS.execute(lUrls, mUrls, hUrls);
+            }
         }
 
         private String download(String s) throws IOException{
@@ -320,6 +305,9 @@ private void initVideo() {
                     publishProgress(0);
                 }else if(now-start/(1000*numParts)>=duracio && q>0){
                     q--;
+                }else if(now-start/(1000)>=videoDuration-duracio*numParts){
+                    numParts=0;
+                    publishProgress(0);
                 }
             }
             return null;
